@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "tgz-community"
+version = "0.1.0"
+description = "Tournament Management for The Great Zimbabwe"
+authors = ["Siddharta Govindaraj <siddharta@silverstripesoftware.in>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "tgz_community"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiohttp = "^3.8.3"
+fastapi = {extras = ["all"], version = "^0.88.0"}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+pytest-watcher = "^0.2.6"
+pytest-asyncio = "^0.20.3"
+pytest-aiohttp = "^1.0.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
