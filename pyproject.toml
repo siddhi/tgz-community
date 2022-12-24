@@ -5,12 +5,12 @@ description = "Tournament Management for The Great Zimbabwe"
 authors = ["Siddharta Govindaraj <siddharta@silverstripesoftware.in>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "tgz_community"}]
+packages = []
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 aiohttp = "^3.8.3"
-fastapi = {extras = ["all"], version = "^0.88.0"}
+starlette = "^0.23.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"

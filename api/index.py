@@ -1,9 +1,10 @@
-from http.server import BaseHTTPRequestHandler
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.routing import Route
 
-class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        self.wfile.write('Hello, world!'.encode('utf-8'))
-        return
+async def homepage(request):
+    return JSONResponse({'hello': 'world'})
+
+app = Starlette(routes=[
+    Route('/', homepage)
+])
