@@ -32,3 +32,7 @@ def test_homepage_returns_success(client, bgc_api):
 def test_dashboard_passes_required_context(client, bgc_api):
     response = client.get('/')
     assert 'games' in response.context
+    
+def test_dashboard_adds_cache_header(client, bgc_api):
+    response = client.get('/')
+    assert 'Cache-Control' in response.headers
