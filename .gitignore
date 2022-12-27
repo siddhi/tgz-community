@@ -5,6 +5,7 @@ __pycche__
 ~*
 .idea
 .vscode
+.env
 *.egg-info/
 .testmondata
 .coverage
