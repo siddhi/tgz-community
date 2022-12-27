@@ -26,10 +26,7 @@ async def homepage(request):
     async with ClientSession('http://play.boardgamecore.net') as session:
         await bgc.login(session, BGC_USERNAME, BGC_PASSWORD)
         data = await asyncio.gather(*[process_game(session, id) for id in GAME_IDS])
-        return templates.TemplateResponse(
-            'dashboard.html', {'request': request, 'games': data},
-            headers={'Cache-Control':'max-age=3600, public'}
-        )
+        return templates.TemplateResponse('dashboard.html', {'request': request, 'games': data})
 
 app = Starlette(routes=[
     Route('/', homepage)
