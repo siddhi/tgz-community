@@ -3,7 +3,7 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.templating import Jinja2Templates
 from aiohttp import ClientSession
-from . import bgc
+from . import bgc, model
 import json
 import os
 
@@ -15,7 +15,7 @@ GAME_IDS = [100509, 100497]
 
 async def process_game(session, id):
     data = await bgc.load_game_state(session, id)
-    return json.loads(data)
+    return model.make_model(json.loads(data))
 
 async def homepage(request):
     async with ClientSession('http://play.boardgamecore.net') as session:

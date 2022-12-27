@@ -7,17 +7,17 @@
         <h1>TGZ Winter 2022</h1>
         {% for game in games %}
         <div>
-            <h2>{{ game['gameName'] }}</h2>
+            <h2>{{ game.name }}</h2>
             <p>
-                <a href="http://play.boardgamecore.net/tgz/{{game['gameId']}}" target="_blank">Game Link</a>
+                <a href="http://play.boardgamecore.net/tgz/{{game.id}}" target="_blank">Game Link</a>
             </p>
             <h3>Players</h3>
             <ul>
-                {% for player in game['players'] %}
+                {% for player in game.players %}
                 <li>{{ player }}</li>
                 {% endfor %}
             </ul>
-            <p>Current Player: {{ game['currentPlayers'] }}</p>
+            <p>Current Player: {{ game.current_player }}</p>
         </div>
         {% endfor %}
     </body>
