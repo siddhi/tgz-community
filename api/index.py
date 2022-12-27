@@ -11,7 +11,12 @@ templates = Jinja2Templates(directory='templates')
 
 BGC_USERNAME = os.environ['BGC_USERNAME']
 BGC_PASSWORD = os.environ['BGC_PASSWORD']
-GAME_IDS = [100509, 100497]
+GAME_IDS = [
+    106917, 106924, 106925, 106919, 106930, 106921, 106922,
+    106915, 106916, 106928, 106929, 106918, 106961, 106920,
+    106912, 106966, 106957, 106967, 106968, 106969, 106963,
+    106953, 106954, 106955, 106956, 106926, 106909, 106908,
+]
 
 async def process_game(session, id):
     data = await bgc.load_game_state(session, id)
