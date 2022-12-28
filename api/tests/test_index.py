@@ -26,13 +26,13 @@ def client():
 
 
 def test_homepage_returns_success(client, bgc_api):
-    response = client.get('/')
+    response = client.get('/Winter22/GroupA')
     assert response.status_code == 200
 
 def test_dashboard_passes_required_context(client, bgc_api):
-    response = client.get('/')
+    response = client.get('/Winter22/GroupA')
     assert 'games' in response.context
     
 def test_dashboard_adds_cache_header(client, bgc_api):
-    response = client.get('/')
+    response = client.get('/Winter22/GroupA')
     assert 'Cache-Control' in response.headers
