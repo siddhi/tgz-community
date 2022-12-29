@@ -55,5 +55,4 @@ def game_state():
 
 def test_parse_full_state(game_state):
     # should not give a parse error
-    table = BGCDecoder.parse_string(game_state)[0]
-
+    _ = BGCDecoder.parse_string(game_state)[0]
