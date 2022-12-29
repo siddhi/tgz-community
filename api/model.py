@@ -20,6 +20,10 @@ class Player:
     name: str
     vr: int
     vp: int
+    
+    @property
+    def vp_delta(self):
+        return self.vp - self.vr
 
 @dataclass
 class DashboardModel:
