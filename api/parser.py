@@ -1,4 +1,4 @@
-from itertools import islice
+from more_itertools import sliced
 from pyparsing import Suppress, Word, Literal, alphanums, OneOrMore, replace_with, srange, Forward
 
 def unescape_token(token):
@@ -29,26 +29,16 @@ def parse_num(tokens):
 def parse_negative_num(tokens):
     return [-decode_b64(token[1:]) for token in tokens]
 
-# itertools recipes
-def batched(iterable, n):
-    "Batch data into tuples of length n. The last batch may be shorter."
-    # batched('ABCDEFG', 3) --> ABC DEF G
-    if n < 1:
-        raise ValueError('n must be at least one')
-    it = iter(iterable)
-    while (batch := tuple(islice(it, n))):
-        yield batch
-
 def split_nums(value):
     num_digits = decode_b64(value[0])
-    return [decode_b64(''.join(digits)) for digits in batched(value[1:], num_digits)]
+    return [decode_b64(''.join(digits)) for digits in sliced(value[1:], num_digits)]
 
 def parse_num_list(tokens):
     return [split_nums(token[1:]) for token in tokens]
 
 def split_negative_nums(value):
     num_digits = decode_b64(value[0])
-    return [-decode_b64(''.join(digits)) for digits in batched(value[1:], num_digits)]
+    return [-decode_b64(''.join(digits)) for digits in sliced(value[1:], num_digits)]
 
 def parse_negative_num_list(tokens):
     return [split_negative_nums(token[1:]) for token in tokens]
@@ -60,6 +50,7 @@ base64chars = srange('[a-zA-Z0-9*%]')
 number = Word('@', base64chars).set_parse_action(parse_num)
 negative_number = Word('&', base64chars).set_parse_action(parse_negative_num)
 number_list = Word('-', base64chars).set_parse_action(parse_num_list)
+optional_number_list = number_list | undefined
 negative_number_list = Word('+', base64chars).set_parse_action(parse_negative_num_list)
 object_value = Forward()
 
@@ -68,6 +59,7 @@ element = a_string | undefined | empty_list | number | negative_number | number_
 open_object = Suppress('[')
 close_object = Suppress(']')
 object_value << open_object + OneOrMore(element) + close_object
+object_value.set_parse_action(lambda tokens: [[token for token in tokens]])
 
 
 BGCDecoder = OneOrMore(element)
