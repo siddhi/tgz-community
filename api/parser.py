@@ -45,7 +45,7 @@ def parse_negative_num_list(tokens):
 
 undefined = Literal('?').set_parse_action(replace_with(None))
 empty_list = Literal(':').set_parse_action(replace_with([]))
-a_string = Word('$', alphanums+'_').set_parse_action(unescape_string)
+a_string = Word('$', alphanums+'_'+'.').set_parse_action(unescape_string)
 base64chars = srange('[a-zA-Z0-9*%]')
 number = Word('@', base64chars).set_parse_action(parse_num)
 negative_number = Word('&', base64chars).set_parse_action(parse_negative_num)

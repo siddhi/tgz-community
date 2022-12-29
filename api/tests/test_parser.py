@@ -56,3 +56,8 @@ def game_state():
 def test_parse_full_state(game_state):
     # should not give a parse error
     _ = BGCDecoder.parse_string(game_state)[0]
+    
+def test_parse_dot_in_escaped_string():
+    output = BGCDecoder.parse_string("[[$player1@2@a-100?@0?][$player2__ARO__site.com@3@7-130-1214@d?][$player3@0@8-120-1436033636@6?][$player4@1@9-14912-1833@6-14]]")
+    player2 = output[0][1]
+    assert player2[0] == 'player2@site.com'
