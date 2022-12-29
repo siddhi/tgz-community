@@ -14,7 +14,7 @@
             <h3>Players</h3>
             <ul>
                 {% for player in game.players %}
-                <li>{{ player }}</li>
+                <li>{{ player.name }} [VR: {{ player.vr }}]</li>
                 {% endfor %}
             </ul>
             <p>Current Player: {{ game.current_player }}</p>
