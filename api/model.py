@@ -1,4 +1,5 @@
 from .parser import BGCDecoder
+from datetime import datetime
 from itertools import groupby
 from more_itertools import sliced
 from collections import Counter
@@ -17,8 +18,8 @@ class GamePhase(Enum):
 @dataclass(frozen=True)
 class Player:
     name: str
-    vr: int
-    vp: int
+    vr: int = 20
+    vp: int = 0
     
     @property
     def vp_delta(self):
@@ -26,7 +27,8 @@ class Player:
 
 @dataclass(frozen=True)
 class GameInfo:
-    phase: GamePhase
+    phase: GamePhase = GamePhase.SETUP
+    last_move: datetime = None
 
     @property
     def is_complete(self):
@@ -102,16 +104,27 @@ def get_player_info_from_table(table):
     data = zip(names, vrs, vps)
     return [Player(*fields) for fields in data]
 
+def get_last_move_time(log_table, timestamp_table):
+    start_timestamp = log_table[0]
+    last_move_delta = timestamp_table[-1]
+    return datetime.utcfromtimestamp(start_timestamp + last_move_delta)
+
 def get_game_state(table):
     game_state_table = table[12]
-    return GameInfo(phase=GamePhase(game_state_table[1]))
+    log_table = table[17]
+    timestamp_table = table[18]
+    last_move = get_last_move_time(log_table, timestamp_table)
+    return GameInfo(
+        phase=GamePhase(game_state_table[1]),
+        last_move=last_move
+    )
 
 def make_model(raw_data):
     try:
         load = raw_data['load']
     except KeyError:
-        players = [Player(player, vr=20, vp=0) for player in raw_data['players']]
-        game_info = GameInfo(phase=GamePhase.SETUP)
+        players = [Player(player) for player in raw_data['players']]
+        game_info = GameInfo()
     else:
         table = BGCDecoder.parse_string(load)[0]
         players = get_player_info_from_table(table)

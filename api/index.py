@@ -3,11 +3,12 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.templating import Jinja2Templates
 from aiohttp import ClientSession
-from . import bgc, model
+from . import bgc, model, filters
 import json
 import os
 
 templates = Jinja2Templates(directory='templates')
+templates.env.filters['humanise'] = filters.humanise
 
 BGC_USERNAME = os.environ['BGC_USERNAME']
 BGC_PASSWORD = os.environ['BGC_PASSWORD']

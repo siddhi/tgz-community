@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 
 from api.model import GamePhase, make_model, calculate_monument_vp, calculate_craft_vp
 
@@ -65,6 +66,10 @@ def test_model_extracts_game_state(response_with_game_state):
     model = make_model(response_with_game_state)
     assert model.game_info.phase == GamePhase.END_GAME
 
+def test_model_extracts_last_move_time(response_with_game_state):
+    model = make_model(response_with_game_state)
+    # unix timestamp in sec, UTC timezone: 1671089379 + 1035949
+    assert model.game_info.last_move == datetime(2022, 12, 27, 7, 15, 28)
 
 def test_calculate_monument_vp_no_monument():
     assert calculate_monument_vp([0, 0, 0, 0, 0]) == 0
