@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 
-class GameState(Enum):
+class GamePhase(Enum):
     SETUP = 0
     BID = 1
     ACTIONS = 2
@@ -14,7 +14,7 @@ class GameState(Enum):
     CHECK_END = 4
     END_GAME = 5
 
-@dataclass
+@dataclass(frozen=True)
 class Player:
     name: str
     vr: int
@@ -24,18 +24,22 @@ class Player:
     def vp_delta(self):
         return self.vp - self.vr
 
-@dataclass
+@dataclass(frozen=True)
+class GameInfo:
+    phase: GamePhase
+
+    @property
+    def is_complete(self):
+        return self.phase == GamePhase.END_GAME
+
+@dataclass(frozen=True)
 class DashboardModel:
     id: int
     name: str
     players: list[Player]
     current_player: str
-    game_state: GameState
+    game_info: GameInfo
     
-    @property
-    def is_complete(self):
-        return self.game_state == GameState.END_GAME
-
 def get_names(player_table):
     return[player[0] for player in player_table]
 
@@ -100,23 +104,23 @@ def get_player_info_from_table(table):
 
 def get_game_state(table):
     game_state_table = table[12]
-    return GameState(game_state_table[1])
+    return GameInfo(phase=GamePhase(game_state_table[1]))
 
 def make_model(raw_data):
     try:
         load = raw_data['load']
     except KeyError:
         players = [Player(player, vr=20, vp=0) for player in raw_data['players']]
-        game_state = GameState.SETUP
+        game_info = GameInfo(phase=GamePhase.SETUP)
     else:
         table = BGCDecoder.parse_string(load)[0]
         players = get_player_info_from_table(table)
-        game_state = get_game_state(table)
+        game_info = get_game_state(table)
         
     return DashboardModel(
         id=raw_data['gameId'],
         name=raw_data['gameName'],
         players=players,
         current_player=raw_data['currentPlayers'],
-        game_state = game_state
+        game_info = game_info
     )

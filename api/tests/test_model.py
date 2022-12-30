@@ -1,6 +1,6 @@
 import pytest
 
-from api.model import GameState, make_model, calculate_monument_vp, calculate_craft_vp
+from api.model import GamePhase, make_model, calculate_monument_vp, calculate_craft_vp
 
 @pytest.fixture
 def basic_response():
@@ -30,7 +30,7 @@ def test_model_extracts_player_names_without_game_state(basic_response):
     
 def test_model_has_game_state_setup_at_first(basic_response):
     model = make_model(basic_response)
-    assert model.game_state == GameState.SETUP
+    assert model.game_info.phase == GamePhase.SETUP
 
 @pytest.fixture
 def response_with_game_state():
@@ -63,7 +63,7 @@ def test_model_calculates_player_vp(response_with_game_state):
 
 def test_model_extracts_game_state(response_with_game_state):
     model = make_model(response_with_game_state)
-    assert model.game_state == GameState.END_GAME
+    assert model.game_info.phase == GamePhase.END_GAME
 
 
 def test_calculate_monument_vp_no_monument():
