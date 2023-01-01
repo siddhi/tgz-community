@@ -3,7 +3,7 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.templating import Jinja2Templates
 from aiohttp import ClientSession
-from . import bgc, model, filters
+from . import bgc, model, filters, ranking
 import json
 import os
 
@@ -27,10 +27,16 @@ async def process_game(session, id):
 async def homepage(request):
     async with ClientSession('http://play.boardgamecore.net') as session:
         await bgc.login(session, BGC_USERNAME, BGC_PASSWORD)
-        group_id = request.path_params['group']
-        data = await asyncio.gather(*[process_game(session, id) for id in GAME_IDS[group_id]])
+        group_name = request.path_params['group']
+        games = await asyncio.gather(*[process_game(session, id) for id in GAME_IDS[group_name]])
+        player_rankings = ranking.make_ranking(games)
         return templates.TemplateResponse(
-            'dashboard.html', {'request': request, 'games': data},
+            'dashboard.html', {
+                'request': request, 
+                'group_name': group_name, 
+                'games': games,
+                'ranking': player_rankings
+            },
             headers={'Cache-Control':'max-age=900, public'}
         )
 

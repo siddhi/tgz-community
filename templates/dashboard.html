@@ -4,7 +4,20 @@
         <title>TGZ Tournament Dashboard</title>
     </head>
     <body>
-        <h1>TGZ Winter 2022</h1>
+        <h1>TGZ Winter 2022 - {{ group_name }}</h1>
+        <div>
+            <h2>Summary</h2>
+            <table>
+                <thead>
+                    <tr><th>Player</th><th>Wins</th></tr>
+                </thead>
+                <tbody>
+                    {% for player in ranking %}
+                    <tr><td>{{ player.name }}</td><td>{{ player.wins }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% for game in games %}
         <div>
             <h2>{{ game.name }} [
