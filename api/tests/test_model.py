@@ -1,7 +1,8 @@
 import pytest
 from datetime import datetime
 
-from api.model import GamePhase, make_model, calculate_monument_vp, calculate_craft_vp
+from api.model import (God, GamePhase, GameInfo, Player, DashboardModel,
+                       make_model, calculate_monument_vp, calculate_craft_vp)
 
 @pytest.fixture
 def basic_response():
@@ -52,15 +53,21 @@ def test_model_extracts_player_vr(response_with_game_state):
     vrs = [player.vr for player in model.players]
     assert vrs == [24, 33, 36, 29]
 
+def test_model_extracts_player_god(response_with_game_state):
+    model = make_model(response_with_game_state)
+    gods = [player.god for player in model.players]
+    assert gods == [God.SHADIPINYI, God.TSUI_GOAB, God.NONE, God.ESHU]
+
+
 def test_model_calculates_player_vp(response_with_game_state):
     # Player 0: monument height 2 x 2, height 3 x 2
     # Player 1: monument height 4 x 1, height 3 x 1, height 2 x 1, Wood Carver, Sculptor
     # Player 2: monument height 2 x 1, height 3 x 1, Potter x 2, Throne Maker x 2, Ivory Carver x 2, Wood Carver x 2 
     # Player 3: monument height 1 x 2, height 2 x 3, Ivory Carver, Sculptor
-    # 3 1, 1 2, 2 0, 3 6, 1 6, 2 5, 2 0, 2 5, 2 1, 2 1, 2 2, 2 2
     model = make_model(response_with_game_state)
     vps = [player.vp for player in model.players]
     assert vps == [20, 26, 20, 14]
+    
 
 def test_model_extracts_game_state(response_with_game_state):
     model = make_model(response_with_game_state)
@@ -70,6 +77,12 @@ def test_model_extracts_last_move_time(response_with_game_state):
     model = make_model(response_with_game_state)
     # unix timestamp in sec, UTC timezone: 1671089379 + 1035949
     assert model.game_info.last_move == datetime(2022, 12, 27, 7, 15, 28)
+
+def test_model_extracts_player_order(response_with_game_state):
+    model = make_model(response_with_game_state)
+    player_turn_order = [player.turn_order for player in model.players]
+    # turn order is player 3, player 2, player 4, player 1
+    assert player_turn_order == [3, 1, 0, 2]
 
 def test_calculate_monument_vp_no_monument():
     assert calculate_monument_vp([0, 0, 0, 0, 0]) == 0
@@ -100,4 +113,78 @@ def test_calculate_craft_vp_multiple_craft():
 def test_calculate_craft_vp_multiple_types():
     """one each"""
     assert calculate_craft_vp([1, 1, 1, 1, 1, 1, 1]) == 12
+
+def test_winner_of_game_in_progress():
+    model = DashboardModel(
+        id=123,
+        name='Game',
+        players=[],
+        current_player='',
+        game_info=GameInfo(phase=GamePhase.ACTIONS)
+    )
+    assert model.winner == None
+
+def test_winner_is_the_player_above_the_vr():
+    p1 = Player(name='p1', turn_order=0, vr=20, vp=16)
+    p2 = Player(name='p2', turn_order=1, vr=20, vp=22)
+    model = DashboardModel(
+        id=123,
+        name='Game',
+        players=[p1, p2],
+        current_player='',
+        game_info=GameInfo(phase=GamePhase.END_GAME)
+    )
+    assert model.winner.name == 'p2'
+
+def test_winner_is_the_player_with_the_highest_delta_above_the_vr():
+    p1 = Player(name='p1', turn_order=0, vr=30, vp=37)
+    p2 = Player(name='p2', turn_order=1, vr=25, vp=30)
+    model = DashboardModel(
+        id=123,
+        name='Game',
+        players=[p1, p2],
+        current_player='',
+        game_info=GameInfo(phase=GamePhase.END_GAME)
+    )
+    assert model.winner.name == 'p1'
+
+def test_winner_xango_breaks_tie():
+    p1 = Player(name='p1', turn_order=0, vr=35, vp=40, god=God.ANANSI)
+    p2 = Player(name='p2', turn_order=1, vr=20, vp=25, god=God.XANGO)
+    p3 = Player(name='p3', turn_order=2, vr=30, vp=35)
+    model = DashboardModel(
+        id=123,
+        name='Game',
+        players=[p1, p2, p3],
+        current_player='',
+        game_info=GameInfo(phase=GamePhase.END_GAME)
+    )
+    assert model.winner.name == 'p2'
+
+
+def test_winner_on_delta_tie_broken_by_player_with_highest_vr():
+    p1 = Player(name='p1', turn_order=0, vr=20, vp=25)
+    p2 = Player(name='p2', turn_order=1, vr=35, vp=40)
+    p3 = Player(name='p3', turn_order=2, vr=30, vp=35)
+    model = DashboardModel(
+        id=123,
+        name='Game',
+        players=[p1, p2, p3],
+        current_player='',
+        game_info=GameInfo(phase=GamePhase.END_GAME)
+    )
+    assert model.winner.name == 'p2'
+
+def test_winner_all_ties_broken_by_player_order():
+    p1 = Player(name='p1', turn_order=0, vr=20, vp=25)
+    p2 = Player(name='p2', turn_order=2, vr=35, vp=40)
+    p3 = Player(name='p3', turn_order=1, vr=35, vp=40)
+    model = DashboardModel(
+        id=123,
+        name='Game',
+        players=[p1, p2, p3],
+        current_player='',
+        game_info=GameInfo(phase=GamePhase.END_GAME)
+    )
+    assert model.winner.name == 'p3'
 

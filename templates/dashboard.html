@@ -9,7 +9,7 @@
         <div>
             <h2>{{ game.name }} [
                 {% if game.game_info.is_complete %}
-                Complete
+                Winner: {{ game.winner.name }}
                 {% elif game.game_info.last_move %}
                 Last move {{ game.game_info.last_move | humanise }}
                 {% else %}

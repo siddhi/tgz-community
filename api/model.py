@@ -1,4 +1,5 @@
 from .parser import BGCDecoder
+from typing import Optional
 from datetime import datetime
 from itertools import groupby
 from more_itertools import sliced
@@ -15,11 +16,29 @@ class GamePhase(Enum):
     CHECK_END = 4
     END_GAME = 5
 
+class God(Enum):
+    NONE = -1
+    XANGO = 0
+    QAMATA = 1
+    DZIVA = 2
+    TSUI_GOAB = 3
+    ELEGUA = 4
+    GU = 5
+    SHADIPINYI = 6
+    ESHU = 7
+    ENGAI = 8
+    ANANSI = 9
+    ATETE = 10
+    OBATALA = 11
+
+
 @dataclass(frozen=True)
 class Player:
     name: str
+    turn_order: int
     vr: int = 20
     vp: int = 0
+    god: God = God.NONE
     
     @property
     def vp_delta(self):
@@ -28,7 +47,7 @@ class Player:
 @dataclass(frozen=True)
 class GameInfo:
     phase: GamePhase = GamePhase.SETUP
-    last_move: datetime = None
+    last_move: Optional[datetime] = None
 
     @property
     def is_complete(self):
@@ -41,14 +60,44 @@ class DashboardModel:
     players: list[Player]
     current_player: str
     game_info: GameInfo
+
+    def _rank_players(self, player):
+        """order in which conditions have to be checked (bigger number is ahead in rank)
+           1. VP - VR
+           2. Xango breaks ties
+           3. VP
+           4. Earlier in turn order
+        """
+        return (player.vp_delta, 
+                1 if player.god == God.XANGO else 0, 
+                player.vp,
+                -player.turn_order)
+
+    @property
+    def winner(self):
+        if not self.game_info.is_complete:
+            return None
+
+        sorted_players = sorted(self.players, key=self._rank_players, reverse=True)
+        return sorted_players[0]
+
     
 def get_names(player_table):
-    return[player[0] for player in player_table]
+    return [player[0] for player in player_table]
 
 def get_vrs(vr_table):
     player_info = sliced(vr_table, 3)
     sorted_player_info = sorted(player_info, key=lambda info: info[0])
     return [player_info[1] for player_info in sorted_player_info]
+
+def get_god(player):
+    god = player[2]
+    if god is None:
+        return God.NONE
+    return God(player[2])
+
+def get_gods(player_table):
+    return [get_god(player) for player in player_table]
 
 MONUMENT_POINTS = [1, 3, 7, 13, 21]
 
@@ -92,16 +141,23 @@ def get_vps(player_count, monument_table, craft_table):
     vp_data = zip(monument_counts, craft_counts)
     return [calculate_total_vp(*vp_fields) for vp_fields in vp_data]
 
+def get_turn_order(game_state_table):
+    turn_order = game_state_table[3]
+    return [turn_order.index(player_id) for player_id in range(len(turn_order))]
+
 def get_player_info_from_table(table):
     player_table = table[0]
     monument_table = table[1]
     craft_table = table[2]
     vr_table = table[19]
+    game_state_table = table[12]
     names = get_names(player_table)
+    gods = get_gods(player_table)
     vrs = get_vrs(vr_table)
     vps = get_vps(len(player_table), monument_table, craft_table) 
+    turn_order = get_turn_order(game_state_table)
 
-    data = zip(names, vrs, vps)
+    data = zip(names, turn_order, vrs, vps, gods)
     return [Player(*fields) for fields in data]
 
 def get_last_move_time(log_table, timestamp_table):
@@ -123,7 +179,7 @@ def make_model(raw_data):
     try:
         load = raw_data['load']
     except KeyError:
-        players = [Player(player) for player in raw_data['players']]
+        players = [Player(player, turn_order) for turn_order, player in enumerate(raw_data['players'])]
         game_info = GameInfo()
     else:
         table = BGCDecoder.parse_string(load)[0]
