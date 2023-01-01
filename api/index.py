@@ -9,6 +9,7 @@ import os
 
 templates = Jinja2Templates(directory='templates')
 templates.env.filters['humanise'] = filters.humanise
+templates.env.filters['underscore_to_space'] = filters.underscore_to_space
 
 BGC_USERNAME = os.environ['BGC_USERNAME']
 BGC_PASSWORD = os.environ['BGC_PASSWORD']

@@ -13,5 +13,8 @@ def humanise_timedelta(delta: timedelta):
     else:
         return pluralise(delta.days, "day")
 
+def underscore_to_space(val):
+    return val.replace('_', ' ')
+
 def humanise(timestamp):
     return humanise_timedelta(datetime.utcnow() - timestamp)

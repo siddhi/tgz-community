@@ -22,10 +22,12 @@
             <h3>Players</h3>
             <ul>
                 {% for player in game.players %}
-                <li>{{ player.name }} - VP: {{ player.vp}} / {{ player.vr }} [{{ player.vp_delta }}]</li>
+                <li>{{ player.name }} -
+                    VP: {{ player.vp}} / {{ player.vr }} [{{ player.vp_delta }}] -
+                    {{ player.god.name | underscore_to_space | title }}</li>
                 {% endfor %}
             </ul>
-            <p>Current Player: {{ game.current_player }}</p>
+            {% if not game.game_info.is_complete %}<p>Current Player: {{ game.current_player }}</p>{% endif %}
         </div>
         {% endfor %}
     </body>

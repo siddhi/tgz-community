@@ -1,7 +1,7 @@
 from datetime import timedelta
 import pytest
 
-from api.filters import humanise_timedelta
+from api.filters import humanise_timedelta, underscore_to_space
 
 @pytest.mark.parametrize(
     "delta, output", [
@@ -16,3 +16,6 @@ from api.filters import humanise_timedelta
 ])
 def test_humanise(delta, output):
     assert humanise_timedelta(delta) == output
+
+def test_underscore_to_space():
+    assert underscore_to_space("a_b_c_d") == 'a b c d'

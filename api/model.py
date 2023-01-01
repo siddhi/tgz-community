@@ -17,7 +17,7 @@ class GamePhase(Enum):
     END_GAME = 5
 
 class God(Enum):
-    NONE = -1
+    NO_GOD = -1
     XANGO = 0
     QAMATA = 1
     DZIVA = 2
@@ -38,7 +38,7 @@ class Player:
     turn_order: int
     vr: int = 20
     vp: int = 0
-    god: God = God.NONE
+    god: God = God.NO_GOD
     
     @property
     def vp_delta(self):
@@ -93,7 +93,7 @@ def get_vrs(vr_table):
 def get_god(player):
     god = player[2]
     if god is None:
-        return God.NONE
+        return God.NO_GOD
     return God(player[2])
 
 def get_gods(player_table):

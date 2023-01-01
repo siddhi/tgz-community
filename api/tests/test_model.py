@@ -56,7 +56,7 @@ def test_model_extracts_player_vr(response_with_game_state):
 def test_model_extracts_player_god(response_with_game_state):
     model = make_model(response_with_game_state)
     gods = [player.god for player in model.players]
-    assert gods == [God.SHADIPINYI, God.TSUI_GOAB, God.NONE, God.ESHU]
+    assert gods == [God.SHADIPINYI, God.TSUI_GOAB, God.NO_GOD, God.ESHU]
 
 
 def test_model_calculates_player_vp(response_with_game_state):
