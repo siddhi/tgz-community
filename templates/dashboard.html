@@ -7,13 +7,18 @@
         <h1>TGZ Winter 2022 - {{ group_name }}</h1>
         <div>
             <h2>Summary</h2>
-            <table>
+            <table border="1">
                 <thead>
-                    <tr><th>Player</th><th>Wins</th></tr>
+                    <tr><th>Player</th><th>Wins</th><th>Tie Break 1</th><th>Tie Break 2</th><th>Tie Break 3</th><th>Tie Break 4</th></tr>
                 </thead>
                 <tbody>
-                    {% for player in ranking %}
-                    <tr><td>{{ player.name }}</td><td>{{ player.wins }}</td></tr>
+                    {% for player in ranking.values() | sort(reverse=True, attribute="wins,diffs") %}
+                    <tr>
+                        <td>{{ player.name }}</td><td>{{ player.wins }}</td>
+                        {% for diff in player.diffs | pad_tuple(4) %}
+                        <td>{{ diff }}</td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>

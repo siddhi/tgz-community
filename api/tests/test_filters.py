@@ -1,7 +1,7 @@
 from datetime import timedelta
 import pytest
 
-from api.filters import humanise_timedelta, underscore_to_space
+from api.filters import humanise_timedelta, underscore_to_space, pad_tuple
 
 @pytest.mark.parametrize(
     "delta, output", [
@@ -19,3 +19,13 @@ def test_humanise(delta, output):
 
 def test_underscore_to_space():
     assert underscore_to_space("a_b_c_d") == 'a b c d'
+
+@pytest.mark.parametrize(
+    "input, output", [
+    (tuple(), ('', '', '')),
+    ((1,), (1, '', '')),
+    ((1, 2), (1, 2, '')),
+    ((1, 2, 3), (1, 2, 3)),
+])
+def test_pad_tuple(input, output):
+    assert pad_tuple(input, 3) == output

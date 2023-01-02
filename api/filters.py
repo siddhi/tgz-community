@@ -18,3 +18,6 @@ def underscore_to_space(val):
 
 def humanise(timestamp):
     return humanise_timedelta(datetime.utcnow() - timestamp)
+
+def pad_tuple(tup, pad_len):
+    return tup + ('',) * (pad_len - len(tup))
