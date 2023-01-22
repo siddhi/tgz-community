@@ -85,7 +85,9 @@ class DashboardModel:
 def get_names(player_table):
     return [player[0] for player in player_table]
 
-def get_vrs(vr_table):
+def get_vrs(player_count, vr_table):
+    if vr_table is None:
+        return [20] * player_count
     player_info = sliced(vr_table, 3)
     sorted_player_info = sorted(player_info, key=lambda info: info[0])
     return [player_info[1] for player_info in sorted_player_info]
@@ -126,6 +128,8 @@ def get_player_monument_counts(monument_table):
     return [get_monuments_count_for_player(group) for key, group in groupby(data, key=sort_by_player)]
 
 def get_player_craft_counts(player_count, craft_table):
+    if craft_table is None:
+        return [[0, 0, 0, 0, 0, 0, 0] for player_id in range(player_count)]
     craft_details = sliced(craft_table, 4)
     sort_by_player = lambda item: item[0] # first element is player number
     data = groupby(sorted(craft_details, key=sort_by_player), key=sort_by_player)
@@ -153,7 +157,7 @@ def get_player_info_from_table(table):
     game_state_table = table[12]
     names = get_names(player_table)
     gods = get_gods(player_table)
-    vrs = get_vrs(vr_table)
+    vrs = get_vrs(len(player_table), vr_table)
     vps = get_vps(len(player_table), monument_table, craft_table) 
     turn_order = get_turn_order(game_state_table)
 
