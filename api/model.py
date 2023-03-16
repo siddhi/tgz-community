@@ -121,7 +121,9 @@ def get_craft_count_for_player(group):
     counts = Counter(crafts)
     return [counts[craft_type] for craft_type in range(7)]
 
-def get_player_monument_counts(monument_table):
+def get_player_monument_counts(player_count, monument_table):
+    if monument_table is None:
+        return [[0, 0, 0, 0, 0] for player_id in range(player_count)]
     monument_details = sliced(monument_table, 3)
     sort_by_player = lambda item: item[0] # first element is player number
     data = sorted(monument_details, key=sort_by_player)
@@ -140,7 +142,7 @@ def calculate_total_vp(monument_counts, craft_counts):
     return calculate_monument_vp(monument_counts) + calculate_craft_vp(craft_counts)
 
 def get_vps(player_count, monument_table, craft_table):
-    monument_counts = get_player_monument_counts(monument_table)
+    monument_counts = get_player_monument_counts(player_count, monument_table)
     craft_counts = get_player_craft_counts(player_count, craft_table)
     vp_data = zip(monument_counts, craft_counts)
     return [calculate_total_vp(*vp_fields) for vp_fields in vp_data]

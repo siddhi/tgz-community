@@ -5,6 +5,14 @@
             "dest": "/index.html"
         },
         {
+            "src": "/Winter22",
+            "dest": "/Winter22.html"
+        },
+        {
+            "src": "/Summer23",
+            "dest": "/Summer23.html"
+        },
+        {
             "src": "/(.*)",
             "dest": "/api/index.py"
         }
